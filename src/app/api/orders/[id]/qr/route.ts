@@ -17,8 +17,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (oErr || !order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     if (order.seller_id !== u.id)
       return NextResponse.json({ error: 'Only the seller can upload the QR' }, { status: 403 });
-    if (order.status !== OrderStatus.SELLER_ACCEPTED)
-      return NextResponse.json({ error: `Upload QR when order is SELLER_ACCEPTED (currently ${order.status})` }, { status: 400 });
+    if (order.status !== OrderStatus.PAYMENT_CONFIRMED)
+      return NextResponse.json({ error: `Upload QR when order is PAYMENT_CONFIRMED (currently ${order.status})` }, { status: 400 });
 
     const form = await req.formData().catch(() => null);
     if (!form) return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });

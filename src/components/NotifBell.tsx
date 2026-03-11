@@ -15,14 +15,17 @@ type N = {
 };
 
 const TYPE_ICON: Record<string, string> = {
-  listing_claimed:   '🛒',  // seller notified when buyer claims
-  buyer_submitted:   '🍽️',  // seller notified when buyer submits meal
-  order_accepted:    '✅',  // buyer notified when seller accepts
-  qr_uploaded:       '📲',  // buyer notified when QR is ready
-  order_completed:   '🎉',  // both notified on completion
-  order_cancelled:   '❌',  // both notified on cancel
-  listing_reopened:  '🔄',  // seller notified when listing goes back live
-  review_received:   '⭐',  // seller notified on review
+  listing_claimed:   '🛒',  // seller: buyer claimed your listing
+  buyer_submitted:   '🍽️',  // seller: buyer submitted meal choices
+  payment_sent:      '💸',  // seller: buyer says they sent payment
+  payment_confirmed: '✅',  // buyer: seller confirmed payment received
+  qr_uploaded:       '📲',  // buyer: QR code is ready
+  order_completed:   '🎉',  // both: order done
+  order_cancelled:   '❌',  // both: order cancelled
+  order_disputed:    '⚠️',  // both: payment dispute flagged
+  listing_reopened:  '🔄',  // seller: listing is live again
+  review_received:   '⭐',  // seller: received a review
+  chat_message:      '💬',  // both: new chat message
 };
 
 function ago(iso: string) {

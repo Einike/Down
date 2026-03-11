@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (order.buyer_id !== u.id && order.seller_id !== u.id)
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    if ([OrderStatus.COMPLETED, OrderStatus.CANCELLED].includes(order.status as any))
+    if ([OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.DISPUTED].includes(order.status as any))
       return NextResponse.json({ error: 'Cannot cancel at this stage' }, { status: 400 });
 
     // Optional cancel reason — cancellation proceeds even if body is absent or empty
@@ -60,10 +60,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const isBuyer   = u.id === order.buyer_id;
 
     // Re-open rules:
-    //  • Listing still has time left AND cancel happened before seller invested effort
-    //    (LOCKED or BUYER_SUBMITTED) → re-open so another buyer can claim it
+    //  • Listing still has time left AND cancel happened before payment (LOCKED / BUYER_SUBMITTED)
+    //    → re-open so another buyer can claim it
     //  • Listing expired → mark EXPIRED so it no longer shows on the board
-    //  • Seller cancelled at SELLER_ACCEPTED or later, OR listing expired → CANCELLED
+    //  • Cancel at PAYMENT_SENT or later (buyer has sent money) → CANCELLED; don't auto-relist
     const earlyStage = [OrderStatus.LOCKED, OrderStatus.BUYER_SUBMITTED].includes(order.status as any);
     let listingNextStatus: string;
     let listingPatch: Record<string, unknown>;
