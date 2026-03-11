@@ -15,11 +15,14 @@ type N = {
 };
 
 const TYPE_ICON: Record<string, string> = {
-  order_claimed:     '🛒',
-  order_cancelled:   '❌',
-  order_completed:   '✅',
-  listing_reopened:  '🔄',
-  review_received:   '⭐',
+  listing_claimed:   '🛒',  // seller notified when buyer claims
+  buyer_submitted:   '🍽️',  // seller notified when buyer submits meal
+  order_accepted:    '✅',  // buyer notified when seller accepts
+  qr_uploaded:       '📲',  // buyer notified when QR is ready
+  order_completed:   '🎉',  // both notified on completion
+  order_cancelled:   '❌',  // both notified on cancel
+  listing_reopened:  '🔄',  // seller notified when listing goes back live
+  review_received:   '⭐',  // seller notified on review
 };
 
 function ago(iso: string) {
@@ -56,13 +59,18 @@ export default function NotifBell() {
     } catch {}
   }, []);
 
-  // Smart polling: 15s when unreads exist, 30s when all read
+  // Poll on a fixed 15s interval — simple and reliable
   useEffect(() => {
     if (!loggedIn) { setList([]); return; }
     load();
-    const interval = setInterval(load, unread > 0 ? 15_000 : 30_000);
+    const interval = setInterval(load, 15_000);
     return () => clearInterval(interval);
-  }, [loggedIn, unread, load]);
+  }, [loggedIn, load]);
+
+  // Refresh immediately when the panel is opened
+  useEffect(() => {
+    if (open && loggedIn) load();
+  }, [open, loggedIn, load]);
 
   // Close on outside click
   useEffect(() => {

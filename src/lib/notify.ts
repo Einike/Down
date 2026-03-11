@@ -9,7 +9,7 @@ export async function notify(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   try {
-    await admin.from('notifications').insert({
+    const { error } = await admin.from('notifications').insert({
       user_id:  userId,
       type,
       title,
@@ -17,6 +17,7 @@ export async function notify(
       link:     link     ?? null,
       metadata: metadata ?? null,
     });
+    if (error) console.error('[notify] DB error:', type, userId, error.message, error.code);
   } catch (e) {
     // Notifications are best-effort — never crash the main flow
     console.error('[notify] failed:', type, userId, e);
