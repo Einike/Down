@@ -44,15 +44,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ error: 'Failed to dispute order' }, { status: 500 });
     }
 
-    // Create a moderation report automatically
-    await admin.from('reports').insert({
+    // Create a moderation report automatically (non-fatal if it fails)
+    const { error: reportErr } = await admin.from('reports').insert({
       reporter_id:       u.id,
       reported_user_id:  order.buyer_id,
       order_id:          id,
       reason_code:       'scam_suspicious',
       message:           `Payment dispute — seller did not receive payment. Note: ${sellerNote}`,
       status:            'open',
-    }).catch(e => console.error('[dispute] report insert failed (non-fatal):', e));
+    });
+    if (reportErr) console.error('[dispute] report insert failed (non-fatal):', reportErr);
 
     await auditLog(u.id, 'order.disputed', 'order', id, { note: sellerNote });
 
