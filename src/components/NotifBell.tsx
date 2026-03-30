@@ -151,10 +151,12 @@ export default function NotifBell() {
                   </div>
                 );
 
-                return n.link ? (
+                // Only allow relative links (starts with '/') — prevents open redirect
+                const safeLink = n.link?.startsWith('/') ? n.link : null;
+                return safeLink ? (
                   <Link
                     key={n.id}
-                    href={n.link}
+                    href={safeLink}
                     onClick={() => { markOneRead(n.id); setOpen(false); }}
                     className="block"
                   >

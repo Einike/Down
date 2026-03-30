@@ -66,13 +66,18 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     };
     if (screenshotUrl) patch.payment_screenshot_url = screenshotUrl;
 
-    const { error: updateErr } = await admin.from('orders')
+    // Optimistic lock — only update if status is STILL BUYER_SUBMITTED (prevents double-tap).
+    const { data: updated, error: updateErr } = await admin.from('orders')
       .update(patch)
-      .eq('id', id);
+      .eq('id', id)
+      .eq('status', OrderStatus.BUYER_SUBMITTED)
+      .select('id');
     if (updateErr) {
       console.error('[payment-sent] DB update failed:', updateErr);
       return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
     }
+    if (!updated?.length)
+      return NextResponse.json({ error: 'Order status changed — refresh and try again' }, { status: 409 });
 
     await auditLog(u.id, 'order.payment_sent', 'order', id, {
       has_screenshot: !!screenshotUrl,

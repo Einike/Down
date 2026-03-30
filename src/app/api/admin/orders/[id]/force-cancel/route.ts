@@ -9,7 +9,9 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const actor  = await requireAdmin(req);
     const { id } = await ctx.params;
     const body   = await req.json().catch(() => ({}));
-    const reason = (body.reason as string) || 'Cancelled by admin';
+    const reason = typeof body.reason === 'string' && body.reason.trim()
+      ? body.reason.trim().slice(0, 500)
+      : 'Cancelled by admin';
 
     const { data: order, error: fetchErr } = await admin
       .from('orders').select('*').eq('id', id).single();

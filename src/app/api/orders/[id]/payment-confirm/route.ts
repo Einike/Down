@@ -24,16 +24,20 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         { status: 400 },
       );
 
-    const { error: updateErr } = await admin.from('orders').update({
+    // Optimistic lock — only update if status is STILL PAYMENT_SENT.
+    // Prevents race with concurrent dispute calls.
+    const { data: updated, error: updateErr } = await admin.from('orders').update({
       status:               OrderStatus.PAYMENT_CONFIRMED,
       payment_confirmed_at: new Date().toISOString(),
       updated_at:           new Date().toISOString(),
-    }).eq('id', id);
+    }).eq('id', id).eq('status', OrderStatus.PAYMENT_SENT).select('id');
 
     if (updateErr) {
       console.error('[payment-confirm] DB update failed:', updateErr);
       return NextResponse.json({ error: 'Failed to confirm payment' }, { status: 500 });
     }
+    if (!updated?.length)
+      return NextResponse.json({ error: 'Order status changed — refresh and try again' }, { status: 409 });
 
     await auditLog(u.id, 'order.payment_confirmed', 'order', id);
 

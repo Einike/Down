@@ -17,7 +17,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       ? body.reason.trim()
       : 'Suspended by admin';
 
-    const days = typeof body.days === 'number' && body.days > 0 ? body.days : null;
+    const rawDays = typeof body.days === 'number' ? body.days : null;
+    if (rawDays !== null && (rawDays < 1 || rawDays > 366 || !Number.isInteger(rawDays)))
+      return NextResponse.json({ error: 'days must be an integer between 1 and 366' }, { status: 400 });
+    const days = rawDays && rawDays > 0 ? rawDays : null;
     const banned_until = days
       ? new Date(Date.now() + days * 86_400_000).toISOString()
       : null;

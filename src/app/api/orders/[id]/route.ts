@@ -13,7 +13,6 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     // Fetch seller payment methods so buyer can see them during payment step.
-    // Always included so buyer doesn't need a separate API call.
     const { data: paymentMethods } = await admin
       .from('user_payment_methods')
       .select('method,handle,is_active')
@@ -28,11 +27,26 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
       .eq('id', data.seller_id)
       .single();
 
+    // Convert raw screenshot path to a short-lived signed URL (seller only).
+    // Never expose the raw storage path — a signed URL is useless after 5 min.
+    let payment_screenshot_signed_url: string | null = null;
+    if (data.payment_screenshot_url && u.id === data.seller_id) {
+      const { data: signed } = await admin.storage
+        .from('payment-screenshots')
+        .createSignedUrl(data.payment_screenshot_url, 300); // 5 min
+      payment_screenshot_signed_url = signed?.signedUrl ?? null;
+    }
+
+    // Strip the raw path from the response regardless of caller
+    const { payment_screenshot_url: _raw, ...orderFields } = data;
+
     return NextResponse.json({
       order: {
-        ...data,
-        seller_username:       sellerProfile?.username ?? null,
-        seller_payment_methods: paymentMethods ?? [],
+        ...orderFields,
+        has_payment_screenshot:       !!data.payment_screenshot_url,
+        payment_screenshot_signed_url,
+        seller_username:              sellerProfile?.username ?? null,
+        seller_payment_methods:       paymentMethods ?? [],
       },
     }, {
       headers: {
