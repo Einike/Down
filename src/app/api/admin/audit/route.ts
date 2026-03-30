@@ -53,8 +53,10 @@ export async function GET(req: NextRequest) {
       total:           orders.length,
       locked:          orders.filter(o => o.status === 'LOCKED').length,
       buyer_submitted: orders.filter(o => o.status === 'BUYER_SUBMITTED').length,
-      seller_accepted: orders.filter(o => o.status === 'SELLER_ACCEPTED').length,
-      qr_uploaded:     orders.filter(o => o.status === 'QR_UPLOADED').length,
+      payment_sent:      orders.filter(o => o.status === 'PAYMENT_SENT').length,
+      payment_confirmed: orders.filter(o => o.status === 'PAYMENT_CONFIRMED').length,
+      qr_uploaded:       orders.filter(o => o.status === 'QR_UPLOADED').length,
+      disputed:          orders.filter(o => o.status === 'DISPUTED').length,
       completed:       orders.filter(o => o.status === 'COMPLETED').length,
       cancelled:       orders.filter(o => o.status === 'CANCELLED').length,
     };
@@ -88,7 +90,7 @@ export async function GET(req: NextRequest) {
 
     // Orders advanced past LOCKED without order_items
     const missingItems = orders.filter(o =>
-      ['BUYER_SUBMITTED', 'SELLER_ACCEPTED', 'QR_UPLOADED'].includes(o.status) && !o.order_items
+      ['BUYER_SUBMITTED', 'PAYMENT_SENT', 'PAYMENT_CONFIRMED', 'QR_UPLOADED'].includes(o.status) && !o.order_items
     );
     healthChecks.push({
       label:  'Missing meal data',
@@ -183,7 +185,7 @@ export async function GET(req: NextRequest) {
         buyer_username:  userMap[o.buyer_id]  ?? o.buyer_id.slice(0, 8),
         seller_username: userMap[o.seller_id] ?? o.seller_id.slice(0, 8),
         has_order_items: !!o.order_items,
-        is_stale:        ['BUYER_SUBMITTED','SELLER_ACCEPTED'].includes(o.status) && o.updated_at < twoHoursAgo,
+        is_stale:        ['BUYER_SUBMITTED','PAYMENT_SENT'].includes(o.status) && o.updated_at < twoHoursAgo,
         lock_expired:    o.status === 'LOCKED' && !!o.lock_expires_at && new Date(o.lock_expires_at) < now,
       }));
 

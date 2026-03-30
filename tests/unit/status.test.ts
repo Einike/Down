@@ -34,8 +34,9 @@ describe('status constants', () => {
 
   it('valid order transitions', () => {
     expect(ORDER_TRANSITIONS.LOCKED).toContain('BUYER_SUBMITTED');
-    expect(ORDER_TRANSITIONS.BUYER_SUBMITTED).toContain('SELLER_ACCEPTED');
-    expect(ORDER_TRANSITIONS.SELLER_ACCEPTED).toContain('QR_UPLOADED');
+    expect(ORDER_TRANSITIONS.BUYER_SUBMITTED).toContain('PAYMENT_SENT');
+    expect(ORDER_TRANSITIONS.PAYMENT_SENT).toContain('PAYMENT_CONFIRMED');
+    expect(ORDER_TRANSITIONS.PAYMENT_CONFIRMED).toContain('QR_UPLOADED');
     expect(ORDER_TRANSITIONS.QR_UPLOADED).toContain('COMPLETED');
   });
 

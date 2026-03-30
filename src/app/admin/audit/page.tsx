@@ -37,16 +37,20 @@ function cooldownRemaining(endsAt: string) {
   return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
 }
 const SC: Record<string, string> = {
-  LOCKED: 'bg-amber-500/20 text-amber-300 border-amber-700/50',
-  BUYER_SUBMITTED: 'bg-blue-500/20 text-blue-300 border-blue-700/50',
-  SELLER_ACCEPTED: 'bg-purple-500/20 text-purple-300 border-purple-700/50',
-  QR_UPLOADED: 'bg-emerald-500/20 text-emerald-300 border-emerald-700/50',
-  COMPLETED: 'bg-green-500/20 text-green-300 border-green-700/50',
-  CANCELLED: 'bg-slate-500/20 text-slate-400 border-slate-600/50',
+  LOCKED:            'bg-amber-500/20 text-amber-300 border-amber-700/50',
+  BUYER_SUBMITTED:   'bg-blue-500/20 text-blue-300 border-blue-700/50',
+  PAYMENT_SENT:      'bg-violet-500/20 text-violet-300 border-violet-700/50',
+  PAYMENT_CONFIRMED: 'bg-purple-500/20 text-purple-300 border-purple-700/50',
+  QR_UPLOADED:       'bg-emerald-500/20 text-emerald-300 border-emerald-700/50',
+  COMPLETED:         'bg-green-500/20 text-green-300 border-green-700/50',
+  CANCELLED:         'bg-slate-500/20 text-slate-400 border-slate-600/50',
+  DISPUTED:          'bg-rose-500/20 text-rose-300 border-rose-700/50',
 };
 const SD: Record<string, string> = {
-  LOCKED: 'bg-amber-400', BUYER_SUBMITTED: 'bg-blue-400', SELLER_ACCEPTED: 'bg-purple-400',
-  QR_UPLOADED: 'bg-emerald-400', COMPLETED: 'bg-green-400', CANCELLED: 'bg-slate-500',
+  LOCKED: 'bg-amber-400', BUYER_SUBMITTED: 'bg-blue-400',
+  PAYMENT_SENT: 'bg-violet-400', PAYMENT_CONFIRMED: 'bg-purple-400',
+  QR_UPLOADED: 'bg-emerald-400', COMPLETED: 'bg-green-400',
+  CANCELLED: 'bg-slate-500', DISPUTED: 'bg-rose-400',
 };
 const AC: Record<string, string> = {
   'listing.create': 'text-emerald-400', 'order.claim': 'text-blue-400',
@@ -385,7 +389,7 @@ export default function AuditPage() {
                       <tr key={o.id} className={`hover:bg-slate-800/30 transition ${o.is_stale ? 'bg-amber-950/10' : i%2===0 ? '' : 'bg-slate-900/20'}`}>
                         <td className="px-4 py-3">
                           <p className="font-mono text-[11px] text-slate-500">#{o.id.slice(0,8).toUpperCase()}</p>
-                          {!o.has_order_items && ['BUYER_SUBMITTED','SELLER_ACCEPTED','QR_UPLOADED'].includes(o.status) && (
+                          {!o.has_order_items && ['BUYER_SUBMITTED','PAYMENT_SENT','PAYMENT_CONFIRMED','QR_UPLOADED'].includes(o.status) && (
                             <span className="text-[9px] text-red-400 border border-red-800/60 rounded px-1">no items</span>
                           )}
                           {o.is_stale && <span className="text-[9px] text-amber-400 border border-amber-800/60 rounded px-1 ml-1">stale 2h+</span>}

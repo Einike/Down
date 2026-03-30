@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         const { data: activeOrders } = await admin.from('orders')
           .select('id')
           .eq('listing_id', l.id)
-          .in('status', ['LOCKED','BUYER_SUBMITTED','SELLER_ACCEPTED','QR_UPLOADED'])
+          .in('status', ['LOCKED','BUYER_SUBMITTED','PAYMENT_SENT','PAYMENT_CONFIRMED','QR_UPLOADED','DISPUTED'])
           .limit(1);
 
         if (!activeOrders?.length) {

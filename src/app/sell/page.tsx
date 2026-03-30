@@ -68,38 +68,6 @@ export default function SellPage() {
     finally { setCancelling(false); }
   };
 
-  const post = async () => {
-    if (closed) { setMsg(closed); return; }
-    try {
-      setBusy(true); setMsg('');
-      const expires_at = new Date(Date.now() + winMin * 60_000).toISOString();
-      await jsonOrThrow(await authedFetch('/api/listings', {
-        method: 'POST',
-        body:   JSON.stringify({ price_cents: Math.round(price * 100), expires_at }),
-      }));
-      setMsg('✅ Listed! Redirecting…');
-      setTimeout(() => router.push('/board'), 800);
-    } catch (e: any) {
-      setMsg(e.message);
-      // Parse cooldown_ends_at from error response if available
-      if (e.message?.includes('active listing')) {
-        checkActive();
-      }
-      // Try to parse a cooldown response
-      try {
-        const res = await authedFetch('/api/listings', {
-          method: 'POST',
-          body: JSON.stringify({ price_cents: Math.round(price * 100), expires_at: new Date(Date.now() + winMin * 60_000).toISOString() }),
-        });
-        if (res.status === 429) {
-          const data = await res.json();
-          if (data.cooldown_ends_at) setCooldownEndsAt(data.cooldown_ends_at);
-        }
-      } catch {}
-    } finally { setBusy(false); }
-  };
-
-  // Smarter post that captures cooldown info
   const postWithCooldownCheck = async () => {
     if (closed) { setMsg(closed); return; }
     setBusy(true); setMsg('');
@@ -216,8 +184,8 @@ export default function SellPage() {
           <div className="rounded-xl bg-slate-800/50 border border-slate-700 p-3 text-xs text-slate-400 space-y-1">
             <p className="font-medium text-slate-300">How it works</p>
             <p>1️⃣ Post listing → buyer claims and picks their meal</p>
-            <p>2️⃣ You accept the order</p>
-            <p>3️⃣ Upload your Ortega dining QR code privately</p>
+            <p>2️⃣ Buyer sends payment via your Venmo/Zelle/etc.</p>
+            <p>3️⃣ Confirm payment received → upload your Ortega QR</p>
             <p>4️⃣ Buyer uses QR at Ortega to pick up their food</p>
             <p className="text-purple-400">⏳ 90-min cooldown applies after each completed order</p>
           </div>

@@ -7,21 +7,25 @@ import { supabase } from '@/lib/supabaseClient';
 type Order = { id:string; status:string; amount_cents:number; created_at:string; seller_id:string; buyer_id:string };
 
 const STATUS_BADGE: Record<string, string> = {
-  LOCKED:          'bg-amber-900/60 border-amber-700 text-amber-300',
-  BUYER_SUBMITTED: 'bg-blue-900/60 border-blue-700 text-blue-300',
-  SELLER_ACCEPTED: 'bg-purple-900/60 border-purple-700 text-purple-300',
-  QR_UPLOADED:     'bg-emerald-900/60 border-emerald-700 text-emerald-300',
-  COMPLETED:       'bg-slate-800/60 border-slate-600 text-slate-400',
-  CANCELLED:       'bg-slate-800/60 border-slate-600 text-slate-500',
+  LOCKED:            'bg-amber-900/60 border-amber-700 text-amber-300',
+  BUYER_SUBMITTED:   'bg-blue-900/60 border-blue-700 text-blue-300',
+  PAYMENT_SENT:      'bg-violet-900/60 border-violet-700 text-violet-300',
+  PAYMENT_CONFIRMED: 'bg-purple-900/60 border-purple-700 text-purple-300',
+  QR_UPLOADED:       'bg-emerald-900/60 border-emerald-700 text-emerald-300',
+  COMPLETED:         'bg-slate-800/60 border-slate-600 text-slate-400',
+  CANCELLED:         'bg-slate-800/60 border-slate-600 text-slate-500',
+  DISPUTED:          'bg-rose-900/60 border-rose-700 text-rose-300',
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  LOCKED:          '🔒 Locked',
-  BUYER_SUBMITTED: '🍽️ Meal chosen',
-  SELLER_ACCEPTED: '✅ Accepted',
-  QR_UPLOADED:     '📲 QR ready',
-  COMPLETED:       '🎉 Complete',
-  CANCELLED:       '❌ Cancelled',
+  LOCKED:            '🔒 Locked',
+  BUYER_SUBMITTED:   '🍽️ Meal chosen',
+  PAYMENT_SENT:      '💸 Payment sent',
+  PAYMENT_CONFIRMED: '✅ Confirmed',
+  QR_UPLOADED:       '📲 QR ready',
+  COMPLETED:         '🎉 Complete',
+  CANCELLED:         '❌ Cancelled',
+  DISPUTED:          '⚠️ Disputed',
 };
 
 export default function OrdersPage() {

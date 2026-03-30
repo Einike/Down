@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     // Check no active order is using this listing
     const { data: activeOrders } = await admin.from('orders')
       .select('id,status').eq('listing_id', id)
-      .in('status', ['LOCKED','BUYER_SUBMITTED','SELLER_ACCEPTED','QR_UPLOADED'])
+      .in('status', ['LOCKED','BUYER_SUBMITTED','PAYMENT_SENT','PAYMENT_CONFIRMED','QR_UPLOADED','DISPUTED'])
       .limit(1);
     if (activeOrders?.length)
       return NextResponse.json({ error: 'Cannot cancel — an active order exists for this listing' }, { status: 409 });
