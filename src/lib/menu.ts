@@ -3,38 +3,35 @@
 // ════════════════════════════════════════════════════════════════════
 
 export const LUNCH_ENTREES = [
-  'Creamy Pesto Pasta with Chicken',
-  'Bacon Breakfast Burrito',
-  'Breakfast Burrito (v)',
-  'Spaghetti with Pork Marinara & Cheese',
-  'Chicken Caesar Salad',
-  'Greek Pasta Salad (v)',
-  'Roast Beef & Cheddar Sub',
-  'Steak Burrito',
+  'Macaroni & Cheese (v)',
+  'Blueberry Mango Spinach Salad (vgn)',
+  'Italian Sub Sandwich',
+  'Carnitas Burrito',
+  'Sweet & Sour Tofu Stir Fry (vgn)',
   'Classic Burger',
   'Veggie Burger (v)',
-  'Roasted Vegetable Pasta (vgn)',
+  'Chicken Caesar Salad',
+  'Steak Burrito',
   'Pressed Bean & Cheese Burrito (v)',
   'Chipotle BBQ Chicken & Potatoes',
-  'Teriyaki Tofu Stir Fry (vgn)',
+  'Roasted Vegetable Pasta (vgn)',
 ] as const;
 
 export const DINNER_EXTRA_ENTREES = [
-  'Tikka Masala with Chicken',
+  'Lomo Saltado w/Green Aji Sauce',
 ] as const;
 
 export const SIDES = [
-  'Chipotle Chowder Corn (v)',
+  'Matzo Ball Soup',
+  'Roasted Broccoli (vgn)',
   'House Salad (vgn)',
-  'Sauteed Zucchini & Yellow Squash (vgn)',
-  'Roasted Potato Medley with Kale (vgn)',
   'Hummus with Celery & Carrots (vgn)',
   'Fries (vgn)',
   'Potato Chip (vgn)',
 ] as const;
 
 export const DESSERTS = [
-  'Banana Chocolate Chip Cookie (vgn)',
+  'Chocolate Chip Cookie (v)',
 ] as const;
 
 export const FRUITS = [
@@ -105,10 +102,15 @@ export interface ValidationResult {
   errors: string[];
 }
 
-/** Pure validation — usable in both server routes and unit tests. */
-export function validateOrderItems(items: OrderItems, period: MealPeriod): ValidationResult {
+/** Pure validation — usable in both server routes and unit tests.
+ *  Pass `liveEntrees` to validate against today's fetched menu instead of the hardcoded list. */
+export function validateOrderItems(
+  items: OrderItems,
+  period: MealPeriod,
+  liveEntrees?: string[],
+): ValidationResult {
   const errors: string[] = [];
-  const available = getAvailableEntrees(period);
+  const available = liveEntrees && liveEntrees.length > 0 ? liveEntrees : getAvailableEntrees(period);
 
   // Entree
   if (!items.entree) {

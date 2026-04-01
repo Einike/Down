@@ -11,7 +11,16 @@ export default function CustomizePage() {
   const { id }   = useParams<{ id: string }>();
   const router   = useRouter();
   const period   = getMealPeriod();
-  const entrees  = getAvailableEntrees(period);
+
+  // Start with hardcoded fallback; replace with live menu when API responds
+  const [entrees, setEntrees] = useState<readonly string[]>(() => getAvailableEntrees(period));
+
+  useEffect(() => {
+    fetch('/api/menu')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.entrees?.length > 0) setEntrees(d.entrees as string[]); })
+      .catch(() => {});
+  }, []);
 
   const [entree,     setEntree]     = useState('');
   const [side,       setSide]       = useState('');

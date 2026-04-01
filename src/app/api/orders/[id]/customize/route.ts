@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/authServer';
 import { admin } from '@/lib/supabaseAdmin';
 import { OrderStatus, ListingStatus } from '@/lib/status';
 import { validateOrderItems, getMealPeriod, OrderItems } from '@/lib/menu';
+import { getLiveEntrees } from '@/lib/liveMenu';
 import { notify } from '@/lib/notify';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -27,7 +28,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     try { body = await req.json(); }
     catch { return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 }); }
 
-    const v = validateOrderItems(body, period);
+    // Validate entree against live menu (falls back to hardcoded if fetch fails)
+    const live = await getLiveEntrees();
+    const liveEntrees = period === 'dinner'
+      ? [...live.entrees, ...live.dinnerExtras]
+      : live.entrees;
+    const v = validateOrderItems(body, period, liveEntrees.length > 0 ? liveEntrees : undefined);
     if (!v.ok)
       return NextResponse.json({ error: v.errors[0], errors: v.errors }, { status: 422 });
 

@@ -70,6 +70,20 @@ export default function NotifBell() {
     return () => clearInterval(interval);
   }, [loggedIn, load]);
 
+  // Realtime subscription — instant notification delivery without waiting for poll
+  useEffect(() => {
+    if (!loggedIn) return;
+    const channel = supabase
+      .channel('notif-bell')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        () => { load(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [loggedIn, load]);
+
   // Refresh immediately when the panel is opened
   useEffect(() => {
     if (open && loggedIn) load();

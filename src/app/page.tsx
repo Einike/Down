@@ -3,9 +3,9 @@ import Link from 'next/link';
 const HOW = [
   { icon: '📋', title: 'Seller posts a meal', body: 'A UCSB student with Ortega dining dollars lists what they\'re selling and sets a price.' },
   { icon: '🛒', title: 'Buyer locks the meal', body: 'Browse the live board, pick a listing, and lock it in. You have 10 min to choose your order.' },
-  { icon: '🍽️', title: 'Choose your food', body: 'Select your entree, sides, fruit, and condiments from the real Ortega menu.' },
-  { icon: '✅', title: 'Seller accepts', body: 'Seller reviews your choices and accepts the order. They\'ll upload the QR code shortly.' },
-  { icon: '📲', title: 'Get the QR', body: 'Seller uploads their Ortega dining QR privately — only you can see it.' },
+  { icon: '🍽️', title: 'Choose your food', body: 'Select your entree, sides, fruit, and condiments from the real Ortega menu — then submit.' },
+  { icon: '💸', title: 'Send payment directly', body: 'Pay the seller via Venmo, Zelle, or cash — then tap "I Sent Payment" in the app.' },
+  { icon: '📲', title: 'Seller confirms & sends QR', body: 'Once the seller confirms payment, they upload their Ortega QR code — only visible to you.' },
   { icon: '🚶', title: 'Pick it up yourself', body: 'Walk to Ortega, scan the QR at the register, and grab your meal. You\'re done!' },
 ];
 
@@ -67,17 +67,6 @@ export default function HomePage() {
         <p className="text-slate-400 text-sm">100% of what you pay goes directly to the seller. GauchoGrub makes nothing on transactions.</p>
       </section>
 
-      {/* Roadmap */}
-      <section className="rounded-2xl border border-slate-700 bg-slate-900/40 p-5 space-y-3">
-        <h2 className="font-bold text-white text-sm">🛣️ Coming soon</h2>
-        <div className="space-y-3 text-sm text-slate-400">
-          <div className="flex gap-3"><span>💳</span><div><p className="text-slate-300 font-medium">Secure payments</p><p>Stripe-powered escrow — held until pickup confirmed. We never store card details.</p></div></div>
-          <div className="flex gap-3"><span>⭐</span><div><p className="text-slate-300 font-medium">Seller reviews</p><p>Rate sellers after each completed order.</p></div></div>
-          <div className="flex gap-3"><span>📱</span><div><p className="text-slate-300 font-medium">Push notifications</p><p>Get notified the moment your meal is claimed or QR is ready.</p></div></div>
-        </div>
-      </section>
-
-      <p className="text-center text-slate-600 text-xs">Questions? Email <span className="text-slate-400">support@gauchogrub.ucsb</span></p>
     </div>
   );
 }

@@ -27,7 +27,22 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
     claimAttempts.set(u.id, Date.now());
 
-    // ── 1. One active order per buyer ─────────────────────────────────────
+    // ── 1. Auto-cancel stale LOCKED orders (expired 10-min lock) ──────────
+    // When a buyer claims but never submits within 10 minutes, the listing gets
+    // restored to OPEN but the order stays stuck in LOCKED status forever,
+    // blocking the buyer from claiming again. Clean those up first.
+    await admin.from('orders')
+      .update({
+        status:       'CANCELLED',
+        cancelled_by: u.id,
+        cancel_reason: 'Lock expired — buyer did not submit within 10 minutes',
+        updated_at:   new Date().toISOString(),
+      })
+      .eq('buyer_id', u.id)
+      .eq('status', 'LOCKED')
+      .lt('lock_expires_at', new Date().toISOString());
+
+    // ── 2. One active order per buyer ─────────────────────────────────────
     // The DB partial index orders_one_active_per_buyer enforces this at insert
     // time too, so this is a friendly early-exit to give a clear error.
     const { data: ao } = await admin.from('orders')
