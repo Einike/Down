@@ -3,7 +3,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-const PUBLIC = ['/login', '/onboarding', '/dev/login', '/'];
+const PUBLIC = ['/login', '/onboarding', '/'];
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

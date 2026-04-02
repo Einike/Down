@@ -50,16 +50,12 @@ export default function LoginPage() {
           <p className="text-slate-300 font-medium text-sm mb-2">How it works</p>
           <p>📋 Sellers post available Ortega meals</p>
           <p>🛒 Buyers claim and customize their order</p>
-          <p>📲 Seller shares QR code privately</p>
-          <p>🍽️ Buyer uses QR to pick up food at Ortega</p>
+          <p>💸 Buyer pays seller directly (Venmo/Zelle/cash)</p>
+          <p>📲 Seller confirms payment & shares QR privately</p>
+          <p>🍽️ Buyer scans QR to pick up food at Ortega</p>
           <p className="text-emerald-400 font-medium mt-1">💚 0% platform fee</p>
         </div>
 
-        {process.env.NEXT_PUBLIC_APP_ENV !== 'production' && (
-          <a href="/dev/login" className="block text-slate-600 hover:text-slate-400 text-xs transition">
-            🧪 Dev login
-          </a>
-        )}
       </div>
     </main>
   );

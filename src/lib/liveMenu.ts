@@ -32,9 +32,14 @@ function decodeHtml(str: string): string {
 function parseEntreesFromHtml(html: string): { entrees: string[]; dinnerExtras: string[] } {
   const entrees: string[] = [];
   const dinnerExtras: string[] = [];
+  // Track which section headings we've already processed — the UCSB dining page
+  // shows the full day's menu and may repeat the same heading (e.g. "Entrees") for
+  // both lunch and dinner blocks. Only take items from the FIRST occurrence of each
+  // section to prevent doubled menu lists.
+  const seenSections = new Set<string>();
   let section = '';
+  let sectionActive = false;
 
-  // Match <dt> (section headers) and <dd> (menu items)
   const re = /<(dt|dd)[^>]*>([\s\S]*?)<\/\1>/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
@@ -43,8 +48,11 @@ function parseEntreesFromHtml(html: string): { entrees: string[]; dinnerExtras: 
     if (!text) continue;
 
     if (tag === 'dt') {
-      section = text.toLowerCase();
-    } else if (tag === 'dd') {
+      const key = text.toLowerCase();
+      sectionActive = !seenSections.has(key);
+      seenSections.add(key);
+      section = key;
+    } else if (tag === 'dd' && sectionActive) {
       const isEntree = ['entrees', 'sandwiches', 'burgers', 'burritos',
                         'salads', 'pasta', 'wraps', 'pizza', 'breakfast'].includes(section);
       const isDinner = ['entree specials', 'dinner specials', 'specials'].includes(section);
@@ -53,7 +61,11 @@ function parseEntreesFromHtml(html: string): { entrees: string[]; dinnerExtras: 
     }
   }
 
-  return { entrees, dinnerExtras };
+  // Deduplicate as a final safety net
+  return {
+    entrees:      [...new Set(entrees)],
+    dinnerExtras: [...new Set(dinnerExtras)],
+  };
 }
 
 /** Returns today's Ortega entrees (live or cached). Falls back to hardcoded menu. */
