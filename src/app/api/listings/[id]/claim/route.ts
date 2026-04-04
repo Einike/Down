@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
     if (error) {
       console.error('[claim]', error);
-      return NextResponse.json({ error: 'Claim failed' }, { status: 500 });
+      return NextResponse.json({ error: error.message ?? 'Claim failed' }, { status: 500 });
     }
     if (!data?.ok) return NextResponse.json({ error: data?.error ?? 'Claim failed' }, { status: 409 });
 
