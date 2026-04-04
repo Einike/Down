@@ -1,16 +1,34 @@
 import { supabase } from './supabaseClient';
 
-/** Attach the current session token to a fetch call. */
+/** Returns a refreshed access token. Proactively refreshes if expired or expiring within 60 s. */
+async function getToken(): Promise<string | undefined> {
+  let { data } = await supabase.auth.getSession();
+  if (data.session) {
+    const expiresAt = data.session.expires_at ?? 0;
+    const nowSecs   = Math.floor(Date.now() / 1000);
+    if (expiresAt - nowSecs < 60) {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (refreshed.session) data = refreshed;
+    }
+  }
+  return data.session?.access_token;
+}
+
+/** Attach the current (refreshed-if-needed) session token to a fetch call. */
 export async function authedFetch(url: string, opts: RequestInit = {}): Promise<Response> {
-  const { data } = await supabase.auth.getSession();
-  const token    = data.session?.access_token;
-  const isForm   = opts.body instanceof FormData;
+  const token  = await getToken();
+  const isForm = opts.body instanceof FormData;
 
   const headers: Record<string, string> = { ...(opts.headers as Record<string, string> ?? {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (!isForm) headers['Content-Type'] = 'application/json';
 
   return fetch(url, { ...opts, headers });
+}
+
+/** Returns a valid (refreshed if needed) access token. Use for manual file-upload fetches. */
+export async function getValidToken(): Promise<string | undefined> {
+  return getToken();
 }
 
 /** Parse JSON from response, throw a readable Error if not OK. */

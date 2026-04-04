@@ -33,10 +33,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     // blocking the buyer from claiming again. Clean those up first.
     await admin.from('orders')
       .update({
-        status:       'CANCELLED',
-        cancelled_by: u.id,
-        cancel_reason: 'Lock expired — buyer did not submit within 10 minutes',
-        updated_at:   new Date().toISOString(),
+        status:             'CANCELLED',
+        cancelled_by:       u.id,
+        cancel_reason_code: 'lock_expired',
+        cancel_reason_text: 'Lock expired — buyer did not submit within 10 minutes',
+        updated_at:         new Date().toISOString(),
       })
       .eq('buyer_id', u.id)
       .eq('status', 'LOCKED')
@@ -106,10 +107,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     });
 
     if (error) {
-      console.error('[claim]', error);
+      console.error('[claim] rpc error:', error.code, error.message);
       return NextResponse.json({ error: error.message ?? 'Claim failed' }, { status: 500 });
     }
-    if (!data?.ok) return NextResponse.json({ error: data?.error ?? 'Claim failed' }, { status: 409 });
+    if (!data?.ok) {
+      console.error('[claim] not ok:', JSON.stringify(data));
+      return NextResponse.json({ error: data?.error ?? 'Claim failed' }, { status: 409 });
+    }
 
     const order = data.order;
     await auditLog(u.id, 'order.claim', 'order', order.id, { listing_id: id });

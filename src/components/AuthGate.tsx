@@ -13,13 +13,36 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (PUBLIC.some(p => pathname === p || pathname?.startsWith(p + '/'))) { setReady(true); return; }
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      let { data: { session } } = await supabase.auth.getSession();
+
+      // Proactively refresh if expired or within 60 s of expiry.
+      // This covers mobile backgrounding, long-idle tabs, etc.
+      if (session) {
+        const expiresAt = session.expires_at ?? 0;
+        const nowSecs   = Math.floor(Date.now() / 1000);
+        if (expiresAt - nowSecs < 60) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          if (refreshed.session) {
+            session = refreshed.session;
+          } else if (expiresAt < nowSecs) {
+            // Token fully expired AND refresh failed — must re-login
+            router.replace('/login'); return;
+          }
+        }
+      }
+
       if (!session) { router.replace('/login'); return; }
+
       try {
-        const res = await fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } });
-        const d   = await res.json();
+        const res = await fetch('/api/profile', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        // Non-2xx means auth failed (expired/invalid token) — send to login, NOT onboarding
+        if (!res.ok) { router.replace('/login'); return; }
+        const d = await res.json();
         if (!d.profile?.username) { router.replace('/onboarding'); return; }
       } catch { router.replace('/login'); return; }
+
       setReady(true);
     })();
   }, [pathname, router]);

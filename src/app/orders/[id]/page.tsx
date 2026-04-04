@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { authedFetch, jsonOrThrow } from '@/lib/fetcher';
+import { authedFetch, jsonOrThrow, getValidToken } from '@/lib/fetcher';
 import { supabase } from '@/lib/supabaseClient';
 import StatusTimeline from '@/components/StatusTimeline';
 import { PAYMENT_CONFIRM_TIMEOUT_MS } from '@/lib/status';
@@ -195,10 +195,10 @@ export default function OrderPage() {
       if (ssFile) {
         const form = new FormData();
         form.append('file', ssFile);
-        const sess = (await supabase.auth.getSession()).data.session;
+        const token = await getValidToken();
         res = await fetch(`/api/orders/${id}/payment-sent`, {
           method: 'POST', body: form,
-          headers: { Authorization: `Bearer ${sess?.access_token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
       } else {
         res = await authedFetch(`/api/orders/${id}/payment-sent`, { method: 'POST' });
@@ -226,10 +226,10 @@ export default function OrderPage() {
     try {
       setUpLoad(true); setErr('');
       const form = new FormData(); form.append('file', file);
-      const sess = (await supabase.auth.getSession()).data.session;
+      const token = await getValidToken();
       const res = await fetch(`/api/orders/${id}/qr`, {
         method: 'POST', body: form,
-        headers: { Authorization: `Bearer ${sess?.access_token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const d = await res.json();
       if (!res.ok) { setErr(d.error ?? 'Upload failed'); return; }
