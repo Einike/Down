@@ -13,7 +13,18 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (PUBLIC.some(p => pathname === p || pathname?.startsWith(p + '/'))) { setReady(true); return; }
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      let { data: { session } } = await supabase.auth.getSession();
+
+      // Refresh if expired or about to expire — handles mobile backgrounding
+      if (session) {
+        const expiresAt = session.expires_at ?? 0;
+        const nowSecs   = Math.floor(Date.now() / 1000);
+        if (expiresAt - nowSecs < 60) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          if (refreshed.session) session = refreshed.session;
+        }
+      }
+
       if (!session) { router.replace('/login'); return; }
       try {
         const res = await fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } });
