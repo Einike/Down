@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getClosedReason } from '@/lib/menu';
 
 const HOW = [
   { icon: '📋', title: 'Seller posts a meal', body: 'A UCSB student with Ortega dining dollars lists what they\'re selling and sets a price.' },
@@ -10,8 +11,15 @@ const HOW = [
 ];
 
 export default function HomePage() {
+  const closedReason = getClosedReason();
   return (
     <div className="space-y-8 py-2">
+      {/* Closed banner */}
+      {closedReason && (
+        <div className="rounded-2xl border border-slate-600 bg-slate-800/60 px-4 py-3 text-center text-sm text-slate-300">
+          🔒 {closedReason} Come back Mon–Fri, 10 AM–8 PM PT.
+        </div>
+      )}
       {/* Hero */}
       <section className="text-center space-y-4 pt-2">
         <div className="text-6xl">🌮</div>
