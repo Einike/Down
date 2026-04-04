@@ -106,10 +106,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     });
 
     if (error) {
-      console.error('[claim]', error);
+      console.error('[claim] rpc error:', JSON.stringify(error));
       return NextResponse.json({ error: `Claim failed: ${error.message ?? error.code ?? JSON.stringify(error)}` }, { status: 500 });
     }
-    if (!data?.ok) return NextResponse.json({ error: data?.error ?? 'Claim failed' }, { status: 409 });
+    console.log('[claim] rpc data:', JSON.stringify(data));
+    if (!data?.ok) {
+      console.error('[claim] rpc returned not-ok:', JSON.stringify(data));
+      return NextResponse.json({ error: data?.error ?? 'Claim failed' }, { status: 409 });
+    }
 
     const order = data.order;
     await auditLog(u.id, 'order.claim', 'order', order.id, { listing_id: id });
