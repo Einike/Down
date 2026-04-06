@@ -12,7 +12,7 @@ type Order = {
   id: string; status: string; amount_cents: number;
   created_at: string; seller_id: string; buyer_id: string;
   lock_expires_at: string; qr_image_url: string | null; order_items: any;
-  payment_screenshot_url: string | null;
+  has_payment_screenshot: boolean;
   payment_sent_at: string | null; payment_confirmed_at: string | null;
   seller_username: string | null;
   seller_payment_methods: PaymentMethod[];
@@ -576,7 +576,7 @@ export default function OrderPage() {
           </div>
 
           {/* Payment screenshot if provided */}
-          {order.payment_screenshot_url && (
+          {order.has_payment_screenshot && (
             <div className="rounded-xl border border-slate-600 bg-slate-800/40 p-3 space-y-1">
               <p className="text-slate-400 text-xs">📸 Buyer attached a payment screenshot</p>
               <p className="text-slate-500 text-xs">(Screenshot stored securely — contact support to view it)</p>

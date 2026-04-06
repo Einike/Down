@@ -173,6 +173,6 @@ export async function POST(req: NextRequest) {
     await auditLog(u.id, 'listing.create', 'listing', data.id, { price_cents });
     return NextResponse.json({ listing: data }, { status: 201 });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
