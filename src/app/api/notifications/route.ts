@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false }).limit(30);
     return NextResponse.json({ notifications: data ?? [] });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
 
@@ -23,6 +23,6 @@ export async function PATCH(req: NextRequest) {
       .eq('user_id', u.id).is('read_at', null);
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }

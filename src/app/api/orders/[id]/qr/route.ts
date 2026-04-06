@@ -89,6 +89,6 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     if (signErr) return NextResponse.json({ error: signErr.message }, { status: 500 });
     return NextResponse.json({ url: signed.signedUrl });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }

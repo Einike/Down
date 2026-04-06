@@ -11,6 +11,6 @@ export async function GET(req: NextRequest) {
     if (error) return NextResponse.json({ error: 'Failed to load orders' }, { status: 500 });
     return NextResponse.json({ orders: data ?? [] });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }

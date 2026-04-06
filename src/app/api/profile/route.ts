@@ -8,6 +8,6 @@ export async function GET(req: NextRequest) {
     const { data } = await admin.from('profiles').select('id,username,email,created_at').eq('id', u.id).single();
     return NextResponse.json({ profile: data ?? null });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 401 });
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
