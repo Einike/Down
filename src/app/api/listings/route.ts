@@ -10,6 +10,14 @@ export async function GET(req: NextRequest) {
     await requireUser(req);
     const now = new Date().toISOString();
 
+    // Auto-expire any OPEN listings whose expires_at has passed (DB cleanup — these are
+    // already hidden from the board by the .gt('expires_at') filter below, but marking
+    // them EXPIRED keeps the DB consistent and prevents seller "active listing" false-blocks).
+    await admin.from('listings')
+      .update({ status: ListingStatus.EXPIRED })
+      .eq('status', ListingStatus.OPEN)
+      .lt('expires_at', now);
+
     // Auto-expire stale locks ONLY when no active order exists
     // (prevents reopening a listing that's IN_PROGRESS)
     const { data: lockedListings } = await admin.from('listings')
